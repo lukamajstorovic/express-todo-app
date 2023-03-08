@@ -2,7 +2,6 @@ const express = require("express");
 const cors = require("cors");
 
 const app = express();
-const PORT = 3000;
 
 var corsOptions = {
   origin: "http://localhost:8000",
@@ -10,21 +9,27 @@ var corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
-
-const pool = new Pool({
-  user: "root",
-  host: "localhost",
-  database: "todo_app",
-  password: "pass",
-  port: 5432,
-});
+const db = require("./app/models");
+db.sequelize
+  .sync()
+  .then(() => {
+    console.log("Synced db.");
+  })
+  .catch((err) => {
+    console.log("Failed to sync db: " + err.message);
+  });
 
 app.get("/ping", (req, res) => {
+  console.log("PONG REQ");
   res.json("pong");
 });
 
+require("./app/routes/user.routes")(app);
+require("./app/routes/note.routes")(app);
+
+const PORT = process.env.port || 8080;
 app.listen(PORT, () => {
-  console.log(`App running on port ${port}.`);
+  console.log(`App running on port ${PORT}.`);
 });
