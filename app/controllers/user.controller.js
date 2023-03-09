@@ -1,37 +1,53 @@
+const bcrypt = require("bcrypt");
+const { validationResult } = require("express-validator");
 const db = require("../models");
 const User = db.user;
 
 // Create and Save a new Tutorial
-exports.create = (req, res) => {
-  // if (!req.body.username) {
-  //   res.status(400).send({
-  //     message: "Content can not be empty!",
-  //   });
-  //   return;
-  // }
+exports.register = async (req, res) => {
+  const saltRounds = 12;
 
-  console.log("BODYYYYY: ", req.body);
-  // Create a Tutorial
+  const { username, email, password } = req.body;
+
   const user = {
-    username: req.body.username,
-    password: req.body.password,
+    username,
+    email,
+    password,
   };
 
-  // Save Tutorial in the database
-  User.create(user)
-    .then((data) => {
-      console.log("USER CREATE");
-      res.send(data);
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || "Some error occurred while creating the user.",
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).jsonp(errors.array());
+  } else {
+    const hash = await bcrypt.hash(password, saltRounds);
+    user.password = hash;
+    User.create(user)
+      .then((data) => {
+        res.send(data);
+        // res.status(200).json("Register suc");
+      })
+      .catch((err) => {
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while creating the user.",
+        });
       });
-    });
+  }
 };
 
-// // Retrieve all Tutorials from the database.
-// exports.login = (req, res) => {};
+exports.login = async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = {
+    email,
+    password,
+  };
+
+  User.findOne({ where: { email: email } }).then(async (data) => {
+    const isValid = await bcrypt.compare(user.password, data.password);
+    res.send(isValid);
+  });
+};
 
 // // Find a single Tutorial with an id
 // exports.logout = (req, res) => {};

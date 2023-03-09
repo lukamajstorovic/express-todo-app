@@ -11,7 +11,7 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 
-const db = require("./app/models");
+const db = require("./models");
 db.sequelize
   .sync()
   .then(() => {
@@ -26,8 +26,8 @@ app.get("/ping", (req, res) => {
   res.json("pong");
 });
 
-require("./app/routes/user.routes")(app);
-require("./app/routes/note.routes")(app);
+require("./routes/user.routes")(app);
+require("./routes/note.routes")(app);
 
 const PORT = process.env.port || 8080;
 app.listen(PORT, () => {

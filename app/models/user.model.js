@@ -8,10 +8,10 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       allowNull: false,
     },
-    // email: {
-    //   type: Sequelize.STRING,
-    //   allowNull: false,
-    // },
+    email: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
     createdAt: {
       type: Sequelize.DATE,
       allowNull: false,
