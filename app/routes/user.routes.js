@@ -3,6 +3,8 @@ const { check } = require("express-validator");
 module.exports = (app) => {
   const user = require("../controllers/user.controller.js");
 
+  const verifyToken = require('../middlewares/verifyToken');
+
   var router = require("express").Router();
 
   // Create a new Tutorial
@@ -23,6 +25,8 @@ module.exports = (app) => {
   );
 
   router.post("/login", user.login);
+
+  router.get('/verify-token', verifyToken, user.getUserInfo);
 
   app.use("/api/user", router);
 };
