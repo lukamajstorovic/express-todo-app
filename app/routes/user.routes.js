@@ -7,7 +7,6 @@ module.exports = (app) => {
 
   var router = require("express").Router();
 
-  // Create a new Tutorial
   router.post(
     "/register",
     [
@@ -28,5 +27,8 @@ module.exports = (app) => {
 
   router.get('/verify-token', verifyToken, user.getUserInfo);
 
+  router.get("/logout", user.logout);
+
   app.use("/api/user", router);
+
 };
