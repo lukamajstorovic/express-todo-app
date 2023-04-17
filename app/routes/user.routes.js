@@ -3,7 +3,7 @@ const { check } = require("express-validator");
 module.exports = (app) => {
   const user = require("../controllers/user.controller.js");
 
-  const verifyToken = require('../middlewares/verifyToken');
+  const verifyToken = require("../middlewares/verifyToken");
 
   var router = require("express").Router();
 
@@ -25,10 +25,11 @@ module.exports = (app) => {
 
   router.post("/login", user.login);
 
-  router.get('/verify-token', verifyToken, user.getUserInfo);
+  router.get("/verify-token", verifyToken, user.getUserInfo);
 
   router.get("/logout", user.logout);
 
-  app.use("/api/user", router);
+  router.get("/delete-user", verifyToken, user.deleteUser);
 
+  app.use("/api/user", router);
 };

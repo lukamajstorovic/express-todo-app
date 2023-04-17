@@ -109,8 +109,30 @@ exports.logout = (req, res) => {
   res.status(200).json({ message: "You have been logged out." });
 };
 
-// // Update a Tutorial by the id in the request
 // exports.refresh = (req, res) => {};
 
-// // Delete a Tutorial with the specified id in the request
-// exports.deleteUser = (req, res) => {};
+exports.deleteUser = async (req, res) => {
+  try {
+    const { id: userId } = req.user;
+
+    const result = await User.destroy({
+      where: { id: userId },
+    });
+
+    if (result == 1) {
+      res.clearCookie("token");
+      res.status(200).send({
+        message: "User was deleted successfully!",
+      });
+    } else {
+      res.status(404).send({
+        message: `Cannot delete User with id=${userId}. Maybe User was not found!`,
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({
+      message: "Could not delete User with id=" + userId,
+    });
+  }
+};
