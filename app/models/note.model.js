@@ -8,14 +8,14 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       allowNull: false,
     },
-    // status: {
-    //   type: Sequelize.ENUM,
-    //   values: ["active", "complete"],
-    // },
-    // createdBy: {
-    //   type: Sequelize.STRING,
-    //   allowNull: false,
-    // },
+    status: {
+      type: Sequelize.ENUM,
+      values: ["active", "complete"],
+    },
+    author: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
     createdAt: {
       type: Sequelize.DATE,
       allowNull: false,

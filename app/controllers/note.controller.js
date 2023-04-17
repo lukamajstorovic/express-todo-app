@@ -1,33 +1,40 @@
 const db = require("../models");
 const Note = db.note;
 
-// Create and Save a new Tutorial
-exports.create = (req, res) => {
-  // Validate request
-  if (!req.body.title) {
-    res.status(400).send({
-      message: "Content can not be empty!",
-    });
-    return;
-  }
+exports.create = async (req, res) => {
+  try {
+    const {
+      user: { id: author },
+    } = req;
+    const { title, body } = req.body;
+    const status = "active";
 
-  // Create a Tutorial
-  const note = {
-    title: req.body.title,
-    body: req.body.body,
-  };
-
-  // Save Tutorial in the database
-  Note.create(note)
-    .then((data) => {
-      console.log("NOTE CREATE");
-      res.send(data);
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || "Some error occurred while creating the note.",
+    if (!title) {
+      return res.status(400).send({
+        message: "Title can not be empty!",
       });
+    }
+    if (!body) {
+      return res.status(400).send({
+        message: "Body can not be empty!",
+      });
+    }
+
+    const note = {
+      title,
+      body,
+      status,
+      author,
+    };
+
+    const createdNote = await Note.create(note);
+    console.log("Note created successfully");
+    return res.send(createdNote);
+  } catch (err) {
+    return res.status(500).send({
+      message: err.message || "An error occurred while creating the note.",
     });
+  }
 };
 
 // // Retrieve all Tutorials from the database.
