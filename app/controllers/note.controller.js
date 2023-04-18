@@ -1,4 +1,5 @@
 const db = require("../models");
+const Sequelize = require("sequelize");
 const { Op } = require("sequelize");
 const Note = db.note;
 
@@ -71,10 +72,91 @@ exports.findOne = async (req, res) => {
   }
 };
 
-// // Update a Tutorial by the id in the request
-// exports.update = (req, res) => {};
+exports.update = async (req, res) => {
+  try {
+    const { id: noteId } = req.body;
+    const { id: userId } = req.user;
+    const [num, [updatedNote]] = await Note.update(
+      { title: req.body.title, body: req.body.body },
+      {
+        returning: true,
+        where: {
+          [Op.and]: [
+            { id: noteId },
+            Sequelize.literal(`CAST("author" AS TEXT) = '${userId}'`),
+          ],
+        },
+      }
+    );
+    if (num == 1) {
+      res.status(200).json(updatedNote);
+    } else {
+      res.status(404).send({
+        message: `Note was not found!`,
+      });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Could not update Note",
+    });
+  }
+};
 
-// // Delete a Tutorial with the specified id in the request
-// exports.delete = (req, res) => {};
+exports.delete = async (req, res) => {
+  try {
+    const { id: noteId } = req.body;
+    const { id: userId } = req.user;
+    const num = await Note.destroy({
+      where: {
+        [Op.and]: [
+          { id: { [Op.eq]: noteId } },
+          Sequelize.literal(`CAST("author" AS TEXT) = '${userId}'`),
+        ],
+      },
+    });
+    if (num == 1) {
+      res.status(200).send({
+        message: "Note was deleted successfully!",
+      });
+    } else {
+      res.status(404).send({
+        message: `Note was not found!`,
+      });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Could not delete Note",
+    });
+  }
+};
 
-// exports.updateNoteStatus = (req, res) => {};
+exports.updateNoteStatus = async (req, res) => {
+  try {
+    const { id: noteId } = req.body;
+    const { id: userId } = req.user;
+    const num = await Note.update(
+      { status: req.body.status },
+      {
+        where: {
+          [Op.and]: [
+            { id: noteId },
+            Sequelize.literal(`CAST("author" AS TEXT) = '${userId}'`),
+          ],
+        },
+      }
+    );
+    if (num == 1) {
+      res.status(200).send({
+        message: `Status updated.`,
+      });
+    } else {
+      res.status(404).send({
+        message: `Note was not found!`,
+      });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Could not update Note status",
+    });
+  }
+};

@@ -11,5 +11,11 @@ module.exports = (app) => {
 
   router.get("/find-all", verifyToken, note.findAll);
 
+  router.delete("/delete", verifyToken, note.delete);
+
+  router.patch("/update", verifyToken, note.update);
+
+  router.patch("/update-status", verifyToken, note.updateNoteStatus);
+
   app.use("/api/note", router);
 };
