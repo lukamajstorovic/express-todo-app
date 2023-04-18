@@ -89,7 +89,7 @@ exports.login = async (req, res) => {
 exports.getUserInfo = async (req, res) => {
   try {
     const { id: userId } = req.user;
-    const user = await User.findOne({ where: { id: userId } });
+    const user = await User.findByPk(userId);
     if (!user) {
       return res
         .status(404)

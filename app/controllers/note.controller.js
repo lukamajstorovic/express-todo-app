@@ -1,4 +1,5 @@
 const db = require("../models");
+const { Op } = require("sequelize");
 const Note = db.note;
 
 exports.create = async (req, res) => {
@@ -37,11 +38,38 @@ exports.create = async (req, res) => {
   }
 };
 
-// // Retrieve all Tutorials from the database.
-// exports.findAll = (req, res) => {};
+exports.findAll = async (req, res) => {
+  try {
+    const { id: author } = req.user;
+    const condition = author && { author: { [Op.iLike]: `%${author}%` } };
+    const notes = await Note.findAll({ where: condition });
+    if (notes.length === 0) {
+      return res.status(200).json({ message: "No notes made yet." });
+    }
+    return res.status(200).json(notes);
+  } catch (error) {
+    return res.status(500).send({
+      message: error.message || "An error occurred while retrieving notes 2.",
+    });
+  }
+};
 
-// // Find a single Tutorial with an id
-// exports.findOne = (req, res) => {};
+exports.findOne = async (req, res) => {
+  try {
+    const { id: noteId } = req.body;
+    const note = await Note.findByPk(noteId);
+    if (!note) {
+      return res.status(404).send({ error: "Note not found" });
+    }
+    if (req.user.id != note.author) {
+      return res.status(401).send({ error: "Unauthorized" });
+    }
+    res.status(200).json(note);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: "Unable to retrieve note" });
+  }
+};
 
 // // Update a Tutorial by the id in the request
 // exports.update = (req, res) => {};
